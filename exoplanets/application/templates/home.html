@@ -1,15 +1,5 @@
 {% extends "layout.html" %}
 {% block body_content %}
 	<p>Welcome to this exoplanets website where you can view the properties of exoplanets and select your favourite exoplanets!</p>
-	{% for post in posts %}
-	<div>
-		<h3>{{ post.name }}</h3>
-		<p><b> - Name:</b>{{ post.name }}</p>
-		<p><b> - Year of Discovery:</b>{{ post.year_of_discovery }}</p>
-		<p><b> - Mass:</b>{{ post.mass }}</p>
-		<p><b> - Radius:</b>{{ post.radius }}</p>
-		<p><b> - Semi-Major Axis:</b>{{ post.semi_major_axis }}</p>
-	</div>
-	{% endfor %}
 {% endblock body_content %}
 
