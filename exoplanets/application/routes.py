@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 from application import app, db
 from application.models import Posts
 from application.forms import PostForm
@@ -7,9 +7,7 @@ from application.forms import PostForm
 @app.route('/')
 @app.route('/home')
 def home():
-    postData = Posts.query.all()
-    return render_template('home.html', title='Home', posts=postData)
-
+    return render_template('home.html', title='Home')
 @app.route('/about')
 def about():
     return render_template('about.html', title='About')
@@ -22,19 +20,14 @@ def login():
 def register():
     return render_template('register.html', title='Register')
 
-@app.route('/planets')
+@app.route('/planets', methods=['GET', 'POST'])
 def planets():
-    form=PostForm
-    if form.validate_on_submit():
-        postData= Favourites(
-        choice_id=
-        user_id=
-        planet_id=
-    )
-        db.session.add(postData)
-        db.session.commit
+    postData = Posts.query.all()
+    form=PostForm()
+    if request.form:
+        request.form.get('favourite', allow_multiple=True)
         return redirect(url_for('favourites'))
-    return render_template('planets.html', title='Planets', form=form)
+    return render_template('planets.html', title='Planets', posts=postData, form=form)
 
 @app.route('/favourites')
 def favourites():
