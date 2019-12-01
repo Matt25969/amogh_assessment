@@ -1,5 +1,17 @@
 {% extends "layout.html" %}
 {% block body_content %}
 	<p>Register here!</p>
+	<div class="form">
+		<form method="POST" action="">
+			{{ form.hidden_tag() }}
+			{{ form.username.label }}
+			{{ form.username }}
+			<br>
+			{{ form.password.label }}
+			{{ form.password }}
+			<br>
+			{{ form.submit }}
+		</form>
+	</div>
 {% endblock body_content %}
 
