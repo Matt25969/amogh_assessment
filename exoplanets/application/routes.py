@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, request
 from application import app, db
-from application.models import Posts
+from application.models import Planets
 from application.forms import PostForm
 
 
@@ -22,12 +22,12 @@ def register():
 
 @app.route('/planets', methods=['GET', 'POST'])
 def planets():
-    postData = Posts.query.all()
+    postData = Planets.query.all()
     form=PostForm()
     if request.form:
         request.form.get('favourite', allow_multiple=True)
         return redirect(url_for('favourites'))
-    return render_template('planets.html', title='Planets', posts=postData, form=form)
+    return render_template('planets.html', title='Planets', planets=postData, form=form)
 
 @app.route('/favourites')
 def favourites():
