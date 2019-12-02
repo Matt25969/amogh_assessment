@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request
 from flask_login import login_user, current_user, logout_user, login_required
 from application import app, db, bcrypt, login_manager
-from application.models import Planets, Users
+from application.models import Planets, Users, Favourites
 from application.forms import PlanetsForm, LoginForm, RegisterForm
 
 
@@ -49,15 +49,22 @@ def register():
 def planets():
     postData = Planets.query.all()
     form=PlanetsForm()
-    if request.form:
-        request.form.get('favourite', allow_multiple=True)
+    if form.validate_on_submit:
+        planetData = Favourites(
+        planet_id=Planets.query.with_entities(Planets.planet_id)
+    )        
+
+        db.session.add(planetData)
+        db.session.commit()
         return redirect(url_for('favourites'))
     return render_template('planets.html', title='Planets', planets=postData, form=form)
 
 @app.route('/favourites')
 @login_required
 def favourites():
-    return render_template('favourites.html', title='Favourites')
+    if user:
+        favouritesData = Favourites.query.all()
+    return render_template('favourites.html', title='Favourites', favourites=favouritesData)
 
 login_manager.init_app(app)
 @login_manager.user_loader

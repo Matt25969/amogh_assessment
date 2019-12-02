@@ -9,7 +9,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 class PlanetsForm(FlaskForm):
-    checkbox = BooleanField([DataRequired()])
+    checkbox = BooleanField('Add',validators=[DataRequired()])
     submit = SubmitField('Add to favourites')
 
 class LoginForm(FlaskForm):
