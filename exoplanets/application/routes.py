@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, request
-from application import app, db
-from application.models import Planets
+from flask_login import login_user, current_user, logout_user, login_required
+from application import app, db, bcrypt, login_manager
+from application.models import Planets, Users
 from application.forms import PlanetsForm, LoginForm, RegisterForm
 
 
@@ -12,30 +13,36 @@ def home():
 def about():
     return render_template('about.html', title='About')
 
-@app.route('/login')
+@app.route("/login", methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+            return redirect(url_for('home'))
+
     form = LoginForm()
     if form.validate_on_submit():
-         return redirect(url_for('home'))
-    else:
-        print(form.errors)
+        user=Users.query.filter_by(email=form.email.data).first()
+
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+
+            if next_page:
+                return redirect(next_page)
+            else:
+                return redirect(url_for('home'))
+
     return render_template('login.html', title='Login', form=form)
 
-@app.route('/register')
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        postData = Users(
-        username=form.username.data,
-        password=form.password.data,
-    )
-
-        db.session.add(postData)
+        hashed_pw = bcrypt.generate_password_hash(form.password.data)
+        user = Users(email=form.email.data, password=hashed_pw)
+        db.session.add(user)
         db.session.commit()
-        return redirect(url_for('home'))
-
-    else:
-        print(form.errors)
+        return redirect(url_for('planets'))
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/planets', methods=['GET', 'POST'])
@@ -48,7 +55,20 @@ def planets():
     return render_template('planets.html', title='Planets', planets=postData, form=form)
 
 @app.route('/favourites')
+@login_required
 def favourites():
     return render_template('favourites.html', title='Favourites')
+
+login_manager.init_app(app)
+@login_manager.user_loader
+def load_user(id):
+    return Users.query.get(int(id))
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
 
 
