@@ -19,16 +19,18 @@ class Planets(db.Model):
         ])
 
 class Users(db.Model, UserMixin):
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
+    favourites = db.relationship('Favourites', backref='author', lazy=True)
+
 
     def __repr__(self):
         return ''.join(['User ID: ', str(self.id), '\r\n', 'Email: ', self.email])
 
 class Favourites(db.Model):
     choice_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    id = db.Column(db.Integer, db.ForeignKey('users.id'))
     planet_id = db.Column(db.Integer, db.ForeignKey('planets.planet_id'))
 
     def __repr__(self):

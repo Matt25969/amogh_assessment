@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, request
 from flask_login import login_user, current_user, logout_user, login_required
 from application import app, db, bcrypt, login_manager
 from application.models import Planets, Users, Favourites
-from application.forms import PlanetsForm, LoginForm, RegisterForm
+from application.forms import ExampleForm, LoginForm, RegisterForm, UpdateAccountForm
 
 
 @app.route('/')
@@ -16,7 +16,7 @@ def about():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-            return redirect(url_for('home'))
+        return redirect(url_for('home'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -36,6 +36,8 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = RegisterForm()
     if form.validate_on_submit():
         hashed_pw = bcrypt.generate_password_hash(form.password.data)
@@ -48,22 +50,30 @@ def register():
 @app.route('/planets', methods=['GET', 'POST'])
 def planets():
     postData = Planets.query.all()
-    form=PlanetsForm()
-    if form.validate_on_submit:
-        planetData = Favourites(
-        planet_id=Planets.query.with_entities(Planets.planet_id)
-    )        
+    form=ExampleForm()
+    if current_user.is_authenticated and form.validate_on_submit:
+        print(form.choices.data)
+    else:
+        print(form.errors)
+        #favourites.planet_id=accepted
+        #db.session.add(favourites)
+        #db.session.commit
+        #planetData = Favourites(
+        #    planet_id=Planets.query.filter_by(planet_id=1),
+        #    id = current_user,
+        #    author = current_user
+        #)        
 
-        db.session.add(planetData)
-        db.session.commit()
-        return redirect(url_for('favourites'))
-    return render_template('planets.html', title='Planets', planets=postData, form=form)
+        #db.session.add(planetData)
+        #db.session.commit()
+        #return redirect(url_for('favourites')) 
+    return render_template('planets.html', title='Planets', planets = postData, form=form)
 
 @app.route('/favourites')
 @login_required
 def favourites():
-    if user:
-        favouritesData = Favourites.query.all()
+    if current_user.is_authenticated:
+        favouritesData = Favourites.query.filter_by(id=current_user).all()
     return render_template('favourites.html', title='Favourites', favourites=favouritesData)
 
 login_manager.init_app(app)
@@ -75,6 +85,18 @@ def load_user(id):
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.route('/account', methods=['GET', 'POST'])
+@login_required
+def account():
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        current_user.email = form.email.data
+        db.session.commit()
+        return redirect(url_for('account'))
+    elif request.method == 'GET':
+        form.email.data = current_user.email
+    return render_template('account.html', title='Account', form=form)
 
 
 

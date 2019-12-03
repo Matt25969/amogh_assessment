@@ -5,12 +5,14 @@
 	{% for post in planets %}
 	<div>
 		<h3>{{ post.name }}</h3>
-		<p><b> Year of Discovery: </b>{{ post.year_of_discovery }} <b> &emsp; Mass: </b>{{ post.mass }} <b> &emsp; Radius: </b>{{ post.radius }} <b> &emsp; Semi-Major Axis: </b>{{ post.semi_major_axis }} &emsp; </p> <br>
-	</div>	
-	<div class="form-group">
-		{{ form.remember.label }}
-		{{ form.remember }}
+		<p><b> Year of Discovery: </b>{{ post.year_of_discovery }} <b> &emsp; Mass: </b>{{ post.mass }} <b> &emsp; Radius: </b>{{ post.radius }} <b> &emsp; Semi-Major Axis: </b>{{ post.semi_major_axis }} &emsp; </p>	
 	</div>
+	{% endfor %}
+	{% for choice in form.choices %}
+		<div class="form-group">
+			{{ choice.label(class="form-check-label") }}
+			{{ choice(class="form-check-input") }}
+		</div>
 	{% endfor %}
 	<input type="submit" value="Submit">
 </form>
